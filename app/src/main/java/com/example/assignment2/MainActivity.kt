@@ -32,7 +32,12 @@ class MainActivity : ComponentActivity() {
                         startImplicitly = {
                             val implicitIntent = Intent("com.example.ACTION_VIEW")
                             startActivity(implicitIntent)
+                        },
+                        viewImageActivity = {
+                            val imageIntent = Intent(this, ThirdActivity::class.java)
+                            startActivity(imageIntent)
                         }
+
                     )
                 }
             }
@@ -44,7 +49,8 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     modifier: Modifier = Modifier,
     startExplicitly: () -> Unit,
-    startImplicitly: () -> Unit
+    startImplicitly: () -> Unit,
+    viewImageActivity: () -> Unit
 ) {
     Surface(color = Color.Blue, modifier = modifier.fillMaxSize()) {
         Column(
@@ -68,6 +74,13 @@ fun MainScreen(
             // Button to start the second activity implicitly
             Button(onClick = startImplicitly) {
                 Text(text = "Start Activity Implicitly")
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Button to start the third activity (View Image Activity)
+            Button(onClick = viewImageActivity) {
+                Text(text = "View Image Activity")
             }
         }
     }
