@@ -1,7 +1,10 @@
 package com.example.assignment2
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -12,12 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.assignment2.ui.theme.Assignment2Theme
 
 class MainActivity : ComponentActivity() {
+    private val PERMISSION_REQUEST_CODE = 100
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -26,8 +32,10 @@ class MainActivity : ComponentActivity() {
                     MainScreen(
                         modifier = Modifier.padding(innerPadding),
                         startExplicitly = {
-                            val explicitIntent = Intent(this, SecondActivity::class.java)
-                            startActivity(explicitIntent)
+                            if (checkAndRequestPermission()) {
+                                val explicitIntent = Intent(this, SecondActivity::class.java)
+                                startActivity(explicitIntent)
+                            }
                         },
                         startImplicitly = {
                             val implicitIntent = Intent("com.example.ACTION_VIEW")
@@ -37,9 +45,36 @@ class MainActivity : ComponentActivity() {
                             val imageIntent = Intent(this, ThirdActivity::class.java)
                             startActivity(imageIntent)
                         }
-
                     )
                 }
+            }
+        }
+    }
+
+    // Check and request custom permission at runtime
+    private fun checkAndRequestPermission(): Boolean {
+        val customPermission = "com.example.assignment2.MSE412"
+        return if (ContextCompat.checkSelfPermission(this, customPermission) == PackageManager.PERMISSION_GRANTED) {
+            // Permission already granted
+            true
+        } else {
+            // Request the permission
+            ActivityCompat.requestPermissions(this, arrayOf(customPermission), PERMISSION_REQUEST_CODE)
+            false
+        }
+    }
+
+    // Handle the result of the permission request
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, start the second activity
+                val explicitIntent = Intent(this, SecondActivity::class.java)
+                startActivity(explicitIntent)
+            } else {
+                // Permission denied, show a message
+                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
             }
         }
     }
